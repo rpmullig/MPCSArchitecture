@@ -1,13 +1,5 @@
 import sys
-
-cache_size: int  # size of cache in bytes
-block_size: int  # size of block in bytes
-n_way: int  # associativity of the cache. 1 is direct-mapped
-policy: str  # replacement policy, can be random, Fifo, or LRU
-algorithm: str  # daxpy (daxpy product), mxm (matrix-matrix multiplication), or mxm_block (mxm with blocking)
-matrix_dimension: int  # x by x matrix
-print_mode: bool  # enables printing of the "solution" matrix product or daxpy vector after emulation
-blocking_factor: int  # Use in blocked matrix multiplication algorithm
+import config as config
 
 
 def main():
@@ -24,28 +16,34 @@ def main():
     }
 
     inputs = sys.argv
+    i: int = 1  # first argument is the file name, skip that in following loop
 
-    for i in range(1, len(inputs)):
+    while i < len(inputs):
         try:
-            if sys.argv[i] is '-p':
+            if inputs[i] == '-p':
                 flags['-p'] = True
+                i += 1
             else:
-                flags[sys.argv[i]] = sys.argv[i + 1]  # read the flag, and the corresponding value
-                i += 1  # skip over the value paired to the flag
+                flags[inputs[i]] = inputs[i + 1]  # read the flag, and the corresponding value
+                i += 2  # skip over the value paired to the flag
         except IndexError:
             print("Flag indexing error occurred. Check if each flag has a corresponding value.")
+            break
 
     try:
-        flags['-c'] = cache_size
-        flags['-b'] = block_size
-        flags['-n'] = n_way
-        flags['-r'] = policy
-        flags['-a'] = algorithm
-        flags['-d'] = matrix_dimension
-        flags['-p'] = print_mode
-        flags['-f'] = blocking_factor
+        config.cache_size = int(flags['-c'])
+        config.block_size = int(flags['-b'])
+        config.n_way = int(flags['-n'])
+        config.policy = str(flags['-r'])
+        config.algorithm = str(flags['-a'])
+        config.matrix_dimension = int(flags['-d'])
+        config.print_mode = bool(flags['-p'])
+        config.blocking_factor = int(flags['-f'])
     except ValueError:
-        print("Flag error occurred on value")
+        print("Flag error occurred on value after indexing")
+
+    config.print_configuration()
+
 
 if __name__ == '__main__':
     main()
