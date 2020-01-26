@@ -1,5 +1,5 @@
 """
-Global variables for us in the file
+Global variables for use in the file
 """
 # emulator inputs as configuration variables
 cache_size: int  # size of cache in bytes
@@ -24,7 +24,8 @@ write_hits: int
 write_misses: int
 
 #  computed variables from emulation results
-
+read_miss_rate: float
+write_miss_rate: float
 
 
 def compute_config_variables() -> None:
@@ -50,15 +51,26 @@ def print_configuration() -> None:
     print("Matrix or Vector dimension  = {:12d}".format(matrix_dimension))
 
 
-def compute_result_variables():
-    pass
+def compute_result_variables() -> None:
+    try:
+        read_miss_rate = (read_misses / instruction_count) * 100  # percentage -- need to confirm
+        write_miss_rate = (write_misses / instruction_count) * 100  # percentage -- need to confirm
+    except NameError:
+        print("Result Variable computation error in miss rate calculations")
 
 
 def print_results() -> None:
     """
     :return: prints the results of the emulation
     """
-    compute_result_variables()
+    compute_result_variables()  # calculates the miss rates
 
+    # to-do clean printing format this up when there's actual data -- confirm the percentages
     print("RESULTS====================================")
-    pass
+    print("Instruction Count = {:23d}".format(instruction_count))
+    print("Read Hits = {:23d}".format(read_hits))
+    print("Read Misses = {:23d}".format(read_misses))
+    print("Read Miss Rate = {:.2f}%".format(read_miss_rate))
+    print("Write Hits = {:23d}".format(write_hits))
+    print("Write Misses = {:23d}".format(write_misses))
+    print("Write Miss Rate = {:.2f}%".format(write_miss_rate))

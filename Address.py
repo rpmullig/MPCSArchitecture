@@ -5,7 +5,7 @@ class Address:
     address: int    # Entire address
     tag: int        # Address tag
     index: int      # Address index
-    off_set: int      # Offset
+    off_set: int    # Offset
 
     def __init__(self, address: int, num_mask_index: int, num_mask_offset: int) -> None:
         """

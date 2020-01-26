@@ -11,7 +11,7 @@ def main():
         '-r': 'LRU',
         '-a': 'mxm_block',
         '-d': 480,
-        '-p': True,  # for now
+        '-p': True,  # for now to-do make sure to add functionality to this
         '-f': 32
     }
 
