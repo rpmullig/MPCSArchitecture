@@ -26,9 +26,6 @@ class Cpu:
     write_hits: int
     write_misses: int
 
-    # Ram and Cache
-    ram: Ram
-
     def __init__(self, c=8 * 64, b=64, n=1, r='LRU', a='daxpy', d=100, p=True, f=32):
         self.cache_size = c
         self.block_size = b
@@ -56,9 +53,9 @@ class Cpu:
 
     def store_double(self, address, value):
         adr = Address(address, self.block_size, self.set_number)
-        print("Block size ", self.block_size)
-        print("Address %d: block num [%d] offset [%d]" % (address, adr.block_number, adr.block_offset))
-        # self.ram.set_block(adr, value)
+        # print("Block size ", self.block_size)
+        # print("Address %d: block num [%d] offset [%d]" % (address, adr.block_number, adr.block_offset))
+        self.ram.set_block(adr, value)
 
     def add_double(self, value1, value2):
         pass

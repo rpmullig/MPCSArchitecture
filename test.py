@@ -6,15 +6,15 @@ from Address import *
 def test():
     my_cpu = Cpu(d=100)  # defaults
 
-    sz = 8
+    sz = 1
 
     n = 100
     a = list(range(0, n * sz, sz))
     b = list(range(n * sz, 2 * n * sz, sz))
     c = list(range(2 * n * sz, 3 * n * sz, sz))
 
-    test_datablock = DataBlock(64, 0)
-    test_datablock.print_data()
+    #test_datablock = DataBlock(64, 0)
+    #test_datablock.print_data()
 
     # test_addr = Address(3, 64, 8)
     for i in range(n):
@@ -22,7 +22,7 @@ def test():
         my_cpu.store_double(address=b[i], value=2 * i)
         my_cpu.store_double(address=c[i], value=0)
 
-    # my_cpu.ram.print_ram()
+    my_cpu.ram.print_ram()
     # my_cpu.print_configuration()
     # print(test_addr)
     '''

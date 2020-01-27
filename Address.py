@@ -12,7 +12,7 @@ class Address:
         self.address = address
         doubles_per_block = int(block_size // 8)
         self.block_number = int(address // doubles_per_block)
-        self.block_offset = int(self.block_number % doubles_per_block)
+        self.block_offset = int(self.address % doubles_per_block)
         self.block_tag = int(self.block_number / num_sets)
         self.block_index = int(self.block_number % num_sets)
 
