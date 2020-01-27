@@ -2,27 +2,45 @@ class Address:
     """
     Holds a memory address
     """
-    address: int    # Entire address
-    tag: int        # Address tag
-    index: int      # Address index
-    off_set: int    # Offset
+    address: float    # Entire address
+    block_number: int
+    block_offset: int
+    block_tag: int
+    block_index: int
 
-    def __init__(self, address: int, num_mask_index: int, num_mask_offset: int) -> None:
+    def __init__(self, address: float, block_size: int, num_sets: int) -> None:
         """
-        :param address: Full address
-        :param num_mask_index: Number of bits used for index
-        :param num_mask_offset: Number of bits used for offset
+        :param address:
+        :param block_size:
+        :param num_sets:
         """
         self.address = address
-        self.off_set = address & ((2**num_mask_offset) - 1)             # get lower num_mask_offset number of bits
-        self.index = (address >> num_mask_offset) % (2**num_mask_index)  # Get middle bits needed for index
-        self.tag = address >> (num_mask_offset + num_mask_index)
+        doubles_per_block = block_size // 8
+        self.block_number = int(address / doubles_per_block)
+        self.block_offset = int(address % doubles_per_block)
+        self.block_tag = int(self.block_number / num_sets)
+        self.block_index = int(self.block_number % num_sets)
 
     def get_tag(self) -> int:
-        return self.tag
+        """
+        :return: address tag
+        """
+        return self.block_tag
 
     def get_index(self) -> int:
-        return self.index
+        """
+        :return: index of address
+        """
+        return self.block_index
 
     def get_offset(self) -> int:
-        return self.off_set
+        """
+        :return: offset of the address
+        """
+        return self.block_offset
+
+    def get_block_number(self):
+        """
+        :return: data block number of the address
+        """
+        return self.block_number

@@ -1,5 +1,6 @@
-from DataBlock import DataBlock
-from Address import Address
+import DataBlock
+import Address
+
 
 class Cache:
     numSet: int
