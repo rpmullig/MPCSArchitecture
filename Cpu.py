@@ -51,17 +51,17 @@ class Cpu:
         self.ram = Ram(math.ceil(self.ram_size/(self.block_size//8)),self.block_size)
         #self.cache = Cache(int())
 
-    def loadDouble(self, address: Address) -> None:
+    def load_double(self, address: Address) -> None:
         pass
 
-    def storeDouble(self, address: float, value: float) -> None:
+    def store_double(self, address: float, value: float) -> None:
         adr = Address(address, self.block_size, self.set_number)
-        self.ram.
+        self.ram.set_block(adr, value)
 
-    def addDouble(self, value1: float, value2: float) -> float:
+    def add_double(self, value1: float, value2: float) -> float:
         pass
 
-    def multDouble(self, value1: float, value2: float) -> float:
+    def mult_double(self, value1: float, value2: float) -> float:
         pass
 
     def compute_config_variables(self) -> None:

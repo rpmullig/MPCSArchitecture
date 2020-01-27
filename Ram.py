@@ -18,11 +18,9 @@ class Ram:
             self.data[i].print_data()
             print('-----')
 
-    def storDouble(self, ):
+    def set_block(self, address, value):
+        self.data[address].set_value(address.get_offset(), value)
 
-    def setBlock(self, address: Address, value: DataBlock):
-        pass
-
-    def getBlock(self, address: Address):
+    def get_block(self, address: Address):
         pass
 
