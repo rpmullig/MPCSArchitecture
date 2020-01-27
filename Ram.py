@@ -19,8 +19,8 @@ class Ram:
             print('-----')
 
     def set_block(self, address, value):
-        self.data[address].set_value(address.get_offset(), value)
+        self.data[address.get_block_number()].set_value(address.get_offset(), value)
 
-    def get_block(self, address: Address):
-        pass
+    def get_block(self, address):
+        return self.data[address.get_block_number()]
 
