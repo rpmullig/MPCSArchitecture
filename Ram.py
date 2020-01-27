@@ -4,10 +4,10 @@ from Address import *
 
 class Ram:
 
-    def __init__(self, numBlocks, block_size):
-        self.numBlocks = numBlocks
+    def __init__(self, num_blocks, block_size):
+        self.numBlocks = num_blocks
         self.data = []
-        for i in range(numBlocks):                  # deep copy issue
+        for i in range(num_blocks):                  # deep copy issue
             tmp = DataBlock(block_size, None)
             self.data.append(tmp)
 

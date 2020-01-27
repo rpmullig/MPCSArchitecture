@@ -1,7 +1,8 @@
 from Address import *
 from Ram import *
-from Cache import *
+
 import math
+
 
 class Cpu:
     cache_size: int  # size of cache in bytes
@@ -27,9 +28,8 @@ class Cpu:
 
     # Ram and Cache
     ram: Ram
-    cache: Cache
 
-    def __init__(self, c=65536, b=64, n=1, r='LRU', a='daxpy', d=480, p=True, f=32):
+    def __init__(self, c=8 * 64, b=64, n=1, r='LRU', a='daxpy', d=100, p=True, f=32):
         self.cache_size = c
         self.block_size = b
         self.n_way = n
@@ -48,32 +48,34 @@ class Cpu:
         self.cached_blocks = int(self.cache_size / self.block_size)
         self.set_number = int(self.cached_blocks / self.n_way)
         # Initialize the Ram and Cash
-        self.ram = Ram(math.ceil(self.ram_size/(self.block_size//8)),self.block_size)
-        #self.cache = Cache(int())
+        self.ram = Ram(math.ceil(self.ram_size / (self.block_size // 8)), self.block_size)
+        # self.cache = Cache(int())
 
-    def load_double(self, address: Address) -> None:
+    def load_double(self, address):
         pass
 
-    def store_double(self, address: float, value: float) -> None:
+    def store_double(self, address, value):
         adr = Address(address, self.block_size, self.set_number)
-        self.ram.set_block(adr, value)
+        print("Block size ", self.block_size)
+        print("Address %d: block num [%d] offset [%d]" % (address, adr.block_number, adr.block_offset))
+        # self.ram.set_block(adr, value)
 
-    def add_double(self, value1: float, value2: float) -> float:
+    def add_double(self, value1, value2):
         pass
 
-    def mult_double(self, value1: float, value2: float) -> float:
+    def mult_double(self, value1, value2):
         pass
 
-    def compute_config_variables(self) -> None:
+    def compute_config_variables(self):
         pass
 
-    def print_configuration(self) -> None:
+    def print_configuration(self):
         """
         :return: prints the current configuration of the global variable inputs
         """
 
         print("INPUTS====================================")
-        print("Ram Size = {:26d} bytes".format(self.ram_size*8))  # computed value
+        print("Ram Size = {:26d} bytes".format(self.ram_size * 8))  # computed value
         print("Cache Size = {:23d} bytes".format(self.cache_size))
         print("Block Size = {:23d} bytes".format(self.block_size))
         print("Total Blocks in cache = {:11d} blocks".format(self.cached_blocks))
@@ -84,7 +86,7 @@ class Cpu:
         print("MXM Blocking Factor  = {:19d}".format(self.blocking_factor))
         print("Matrix or Vector dimension  = {:12d}".format(self.matrix_dimension))
 
-    def print_results(self) -> None:
+    def print_results(self):
         """
         :return: prints the results of the emulation
         """

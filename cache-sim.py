@@ -42,14 +42,8 @@ def main() -> None:
 
     test()
 
-    #cpu = Cpu(c, b, n, r, a, d, p, f)
-    #cpu.print_configuration()
-
-
-
-
-
-
+    # cpu = Cpu(c, b, n, r, a, d, p, f)
+    # cpu.print_configuration()
 
 
 if __name__ == '__main__':

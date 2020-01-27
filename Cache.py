@@ -1,24 +1,22 @@
-import DataBlock
-import Address
+from Address import *
+from DataBlock import *
 
 
 class Cache:
-    numSet: int
-    numBlocks: int
 
-    def __init__(self, numSet, numBlocks):
-        self.numSet = numSet
-        self.numBlocks = numBlocks
-        self.blocks = [DataBlock(numSet) for x in range(0, numBlocks)]
+    def __init__(self, num_set, num_blocks):
+        self.numSet = num_set
+        self.numBlocks = num_blocks
+        self.blocks = [DataBlock(num_set) for x in range(0, num_blocks)]
 
-    def getDouble(self, address: Address):
+    def get_double(self, address: Address):
         pass
 
-    def setDouble(self, address: Address, value: float):
+    def set_double(self, address: Address, value: float):
         pass
 
-    def getBlock(self, address: Address):
+    def get_block(self, address: Address):
         pass
 
-    def setBlock(self, address: Address, block: DataBlock):
+    def set_block(self, address: Address, block: DataBlock):
         pass
