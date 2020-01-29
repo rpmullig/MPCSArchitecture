@@ -53,18 +53,15 @@ class Cpu:
 
     def store_double(self, address, value):
         adr = Address(address, self.block_size, self.set_number)
+        self.ram.set_block(adr, value)
         # print("Block size ", self.block_size)
         # print("Address %d: block num [%d] offset [%d]" % (address, adr.block_number, adr.block_offset))
-        self.ram.set_block(adr, value)
 
     def add_double(self, value1, value2):
-        pass
+        return value1 + value2
 
     def mult_double(self, value1, value2):
-        pass
-
-    def compute_config_variables(self):
-        pass
+        return value1 * value2
 
     def print_configuration(self):
         """

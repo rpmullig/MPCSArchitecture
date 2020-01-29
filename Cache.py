@@ -9,20 +9,17 @@ class Cache:
         self.n_way = n_way
         self.data = []
         for i in range(0, self.num_set):
-            set = [[0, None] * self.n_way]  # validation bit and value
-            self.data.append(set)
+            cache_set = [None] * self.n_way
+            self.data.append(cache_set)
 
     def get_double(self, address):
-        return self.data[address.get_block_number()]
+        return self.data[address.get_block_number()]  # fix
 
     def set_double(self, address, value):
-        pass
-        # self.data[address.get_block_number()].set_value(address.get_offset(), value)
+        self.get_block(address.get_index())  # fix
 
     def get_block(self, address):
-        pass
-        # self.data[cpu.ram.get_block(address)]  # wrong
+        return self.data[address.block_number]  # fix
 
     def set_block(self, address, block):
-        pass
-        # self.data[.set_block(address, block)  # wrong
+        self.data[address.block_index] = block  # fix
