@@ -1,5 +1,3 @@
-from Address import *
-from DataBlock import *
 
 
 class Cache:
