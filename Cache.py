@@ -1,6 +1,7 @@
 from CacheSet import *
 from Address import *
 
+
 class Cache:
 
     def __init__(self, num_set, n_way: int, block_size: int, policy="LRU"):
@@ -29,8 +30,6 @@ class Cache:
             if current_set.get_validation_bit() is False:
                 current_set.set_validation_bit(True)
                 current_set.set_block(address, value)
-
-
 
     def print_cache(self):
         # print(self.cache_sets)
