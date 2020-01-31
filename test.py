@@ -1,6 +1,4 @@
 from Cpu import *
-from DataBlock import *
-from Address import *
 
 
 def test():
@@ -23,11 +21,13 @@ def test():
         my_cpu.store_double(address=c[i], value=0)
 
     my_cpu.ram.print_ram()
-    # my_cpu.print_configuration()
-    # print(test_addr)
+    my_cpu.cache.print_cache()
 
     register0 = 3
     '''
+    # my_cpu.print_configuration()
+    # print(test_addr)
+
     for i in range(n):
         register1 = my_cpu.loadDouble(a[i])
         register2 = my_cpu.multDouble(register0, register1)

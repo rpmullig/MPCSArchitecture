@@ -47,7 +47,7 @@ class Cpu:
         self.cached_blocks = int(self.cache_size / self.block_size)
         self.set_number = int(self.cached_blocks / self.n_way)
         self.ram = Ram(math.ceil(self.ram_size / (self.block_size // 8)), self.block_size)  # Initialize RAM and cache
-        self.cache = Cache(self.set_number, self.n_way)
+        self.cache = Cache(self.set_number, self.n_way, self.block_size)
 
     def load_double(self, address):
         self.instruction_count += 1
