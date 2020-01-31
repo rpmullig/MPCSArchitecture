@@ -1,4 +1,5 @@
 from Address import *
+from Cache import *
 from Ram import *
 
 import math
@@ -45,11 +46,19 @@ class Cpu:
             raise ValueError
         self.cached_blocks = int(self.cache_size / self.block_size)
         self.set_number = int(self.cached_blocks / self.n_way)
-        self.ram = Ram(math.ceil(self.ram_size / (self.block_size // 8)), self.block_size) # Initialize RAM and cache
-        # self.cache = Cache(int())
+        self.ram = Ram(math.ceil(self.ram_size / (self.block_size // 8)), self.block_size)  # Initialize RAM and cache
+        self.cache = Cache(self.set_number, self.n_way)
 
     def load_double(self, address):
-        pass
+        self.instruction_count += 1
+        check_cache = self.cache.get_double(address)
+        if check_cache[0] is True:
+            self.read_hits += 1
+            return check_cache[0]
+        else:
+            self.read_misses += 1
+            block = self.ram.get_block(address)
+
 
     def store_double(self, address, value):
         adr = Address(address, self.block_size, self.set_number)

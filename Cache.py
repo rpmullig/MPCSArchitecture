@@ -20,12 +20,21 @@ class Cache:
         target_set_meta_data = self.meta_data_on_set[index]
         for b in range(0, len(target_set)):
             if target_set_meta_data[b][1] == tag and target_set_meta_data[b][0] is True:
-                return target_set[b]
+                return [True, target_set[b]]  # hit status and data
+        return [False, 0]
 
-
-    def set_double(self, address, value):
+    def set_double_random(self, address, value):
         if self.at_capacity is False:
             self.get_block(address.get_index())
+
+    def set_double_LRU(self, address, value):
+        if self.at_capacity is False:
+            self.get_block(address.get_index())
+
+    def set_double_random(self, address, value):
+        if self.at_capacity is False:
+            self.get_block(address.get_index())
+
 
     def get_block(self, address):
         return self.data[address.block_number]
