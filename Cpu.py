@@ -35,7 +35,8 @@ class Cpu:
         self.matrix_dimension = d
         self.print_mode = p
         self.blocking_factor = f
-        # computed values
+
+        # computed values determined by inputs
         if a == 'mxm_block':
             self.ram_size = d * d * 3
         elif a == 'daxpy':
@@ -44,8 +45,7 @@ class Cpu:
             raise ValueError
         self.cached_blocks = int(self.cache_size / self.block_size)
         self.set_number = int(self.cached_blocks / self.n_way)
-        # Initialize the Ram and Cash
-        self.ram = Ram(math.ceil(self.ram_size / (self.block_size // 8)), self.block_size)
+        self.ram = Ram(math.ceil(self.ram_size / (self.block_size // 8)), self.block_size) # Initialize RAM and cache
         # self.cache = Cache(int())
 
     def load_double(self, address):
@@ -57,17 +57,30 @@ class Cpu:
         # print("Block size ", self.block_size)
         # print("Address %d: block num [%d] offset [%d]" % (address, adr.block_number, adr.block_offset))
 
-    def add_double(self, value1, value2):
+    @staticmethod
+    def add_double(value1, value2):
+        """
+        Adds two doubles
+        :param value1:
+        :param value2:
+        :return: Summation of the two values
+        """
         return value1 + value2
 
-    def mult_double(self, value1, value2):
+    @staticmethod
+    def mult_double(value1, value2):
+        """
+        Multiplies two doubles
+        :param value1:
+        :param value2:
+        :return: Product of two doubles
+        """
         return value1 * value2
 
     def print_configuration(self):
         """
-        :return: prints the current configuration of the global variable inputs
+        Prints the current configuration of the global variable inputs
         """
-
         print("INPUTS====================================")
         print("Ram Size = {:26d} bytes".format(self.ram_size * 8))  # computed value
         print("Cache Size = {:23d} bytes".format(self.cache_size))
@@ -82,7 +95,7 @@ class Cpu:
 
     def print_results(self):
         """
-        :return: prints the results of the emulation
+        Prints the results of the emulation
         """
         read_miss_rate = (self.read_misses / self.instruction_count) * 100  # percentage -- need to confirm
         write_miss_rate = (self.write_misses / self.instruction_count) * 100  # percentage -- need to confirm

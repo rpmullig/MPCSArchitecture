@@ -13,8 +13,8 @@ def test():
     b = list(range(n * sz, 2 * n * sz, sz))
     c = list(range(2 * n * sz, 3 * n * sz, sz))
 
-    #test_datablock = DataBlock(64, 0)
-    #test_datablock.print_data()
+    # test_datablock = DataBlock(64, 0)
+    # test_datablock.print_data()
 
     # test_addr = Address(3, 64, 8)
     for i in range(n):
@@ -25,9 +25,9 @@ def test():
     my_cpu.ram.print_ram()
     # my_cpu.print_configuration()
     # print(test_addr)
-    '''
-    register0 = 3
 
+    register0 = 3
+    '''
     for i in range(n):
         register1 = my_cpu.loadDouble(a[i])
         register2 = my_cpu.multDouble(register0, register1)
