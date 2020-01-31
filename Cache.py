@@ -23,18 +23,17 @@ class Cache:
                 return [True, target_set[b]]  # hit status and data
         return [False, 0]
 
+    def set_double_least_recently_used(self, address, value):
+        if self.at_capacity is False:
+            self.get_block(address.get_index())
+
+    def set_double_first_in_first_out(self, address, value):
+        if self.at_capacity is False:
+            self.get_block(address.get_index())
+
     def set_double_random(self, address, value):
         if self.at_capacity is False:
             self.get_block(address.get_index())
-
-    def set_double_LRU(self, address, value):
-        if self.at_capacity is False:
-            self.get_block(address.get_index())
-
-    def set_double_random(self, address, value):
-        if self.at_capacity is False:
-            self.get_block(address.get_index())
-
 
     def get_block(self, address):
         return self.data[address.block_number]
