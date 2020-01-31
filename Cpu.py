@@ -59,7 +59,6 @@ class Cpu:
             self.read_misses += 1
             block = self.ram.get_block(address)
 
-
     def store_double(self, address, value):
         adr = Address(address, self.block_size, self.set_number)
         self.ram.set_block(adr, value)
@@ -106,15 +105,17 @@ class Cpu:
         """
         Prints the results of the emulation
         """
-        read_miss_rate = (self.read_misses / self.instruction_count) * 100  # percentage -- need to confirm
-        write_miss_rate = (self.write_misses / self.instruction_count) * 100  # percentage -- need to confirm
+        try:
+            read_miss_rate = (self.read_misses / self.instruction_count) * 100  # percentage -- need to confirm
+            write_miss_rate = (self.write_misses / self.instruction_count) * 100  # percentage -- need to confirm
 
-        # to-do clean printing format this up when there's actual data -- confirm the percentages
-        print("RESULTS====================================")
-        print("Instruction Count = {:23d}".format(self.instruction_count))
-        print("Read Hits = {:23d}".format(self.read_hits))
-        print("Read Misses = {:23d}".format(self.read_misses))
-        print("Read Miss Rate = {:.2f}%".format(read_miss_rate))
-        print("Write Hits = {:23d}".format(self.write_hits))
-        print("Write Misses = {:23d}".format(self.write_misses))
-        print("Write Miss Rate = {:.2f}%".format(write_miss_rate))
+            print("RESULTS====================================")
+            print("Instruction Count = {:23d}".format(self.instruction_count))
+            print("Read Hits = {:23d}".format(self.read_hits))
+            print("Read Misses = {:23d}".format(self.read_misses))
+            print("Read Miss Rate = {:.2f}%".format(read_miss_rate))
+            print("Write Hits = {:23d}".format(self.write_hits))
+            print("Write Misses = {:23d}".format(self.write_misses))
+            print("Write Miss Rate = {:.2f}%".format(write_miss_rate))
+        except ValueError:
+            print("Results printing error")
