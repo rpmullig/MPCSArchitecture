@@ -62,6 +62,7 @@ class Cpu:
     def store_double(self, address, value):
         adr = Address(address, self.block_size, self.set_number)
         self.ram.set_block(adr, value)
+        self.cache.set_double(adr, value)
         # print("Block size ", self.block_size)
         # print("Address %d: block num [%d] offset [%d]" % (address, adr.block_number, adr.block_offset))
 

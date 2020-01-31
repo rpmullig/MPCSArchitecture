@@ -1,5 +1,5 @@
 from CacheSet import *
-
+from Address import *
 
 class Cache:
 
@@ -12,7 +12,7 @@ class Cache:
             cache_set = CacheSet(False, None, block_size, None, n_way)  # A "row" in the cache - Valid bit, tag, data]
             self.cache_sets.append(cache_set)
 
-    def get_double(self, address):
+    def get_double(self, address: Address):
         index = address.get_index()
         tag = address.get_tag()
         for cache_set in range(self.num_set):
@@ -22,10 +22,15 @@ class Cache:
         else:
             return False
 
-    def set_double(self, address, value):
+    def set_double(self, address: Address, value):
         index = address.get_index()
         tag = address.get_tag()
-        current_set = self.cache_sets[index]
+        for current_set in self.cache_sets:
+            if current_set.get_validation_bit() is False:
+                current_set.set_validation_bit(True)
+                current_set.set_block(address, value)
+
+
 
     def print_cache(self):
         # print(self.cache_sets)
