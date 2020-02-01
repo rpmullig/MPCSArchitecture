@@ -22,7 +22,8 @@ class Cache:
         # Check if block exists
         for i in range(0, retrieved_set.n_way):
             # possible error in None value, so make sure that's not the case
-            if retrieved_set.tags[i] is this_tag and retrieved_set.data_blocks[i].get_value(address.get_offset()) is not None:
+            if retrieved_set.tags[i] is this_tag and retrieved_set.data_blocks[i].get_value(
+                    address.get_offset()) is not None:
                 self.cpu.read_hits += 1
                 return retrieved_set.data_blocks[i].get_value(address.get_offset())
 
@@ -61,13 +62,23 @@ class Cache:
                 # Need to set block into None position
                 self.cache_sets[address.get_index()].tags[none_position] = address.get_tag()
                 ram_block_value = ram_block.get_value(address.get_offset())
-                self.cache_sets[address.get_index()].data_blocks[none_position].set_value(address.get_offset(), ram_block_value)
+                self.cache_sets[address.get_index()].data_blocks[none_position].set_value(address.get_offset(),
+                                                                                          ram_block_value)
 
     def set_block_with_replacement(self, address, block):
         ram_block_value = block.get_value(address.get_offset())
-        # if self.policy is "Random":
-        # Random from 0 to n_associativity
-        i = randrange(0, self.n_way)
+        current_set = self.cache_sets[address.get_index()]
+        i: int = 0
+        if self.policy is "random":
+            # Random from 0 to n_associativity
+            i = randrange(0, self.n_way)
+        elif self.policy is "LRU":
+            pass
+            # i = current_set.first_in
+        else:  # must be FIFO
+            pass
+            # i = current_set.first_in
+
         address.set_offset(i)
         self.cache_sets[address.get_index()].tags[i] = address.get_tag()
         self.cache_sets[address.get_index()].data_blocks[i].set_value(address.get_offset(), ram_block_value)

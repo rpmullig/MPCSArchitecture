@@ -9,6 +9,7 @@ class CacheSet:
         self.data_blocks = []
         self.tags = [None] * n_way
         self.last_used_block = [None, 0]  # DataBlock and block number
+        self.first_in = None
         for i in range(0, n_way):
             tmp = DataBlock(block_size, data_value)
             self.data_blocks.append(tmp)
@@ -33,9 +34,10 @@ class CacheSet:
 
     def set_block(self, address, value):
         self.data_blocks[address.get_block_number()].set_value(address.get_offset(), value)
+        self.first_in = address.get_offset()
 
     def get_block(self, address):
-        self.last_used_block = [self.data_blocks[address.get_block_number()], address.get_block_number()]
+        self.last_used_block = self.data_blocks[address.get_block_number()]
         return self.data_blocks[address.get_block_number()]
 
     def get_last_recently_used(self):
