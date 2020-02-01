@@ -1,14 +1,15 @@
 from DataBlock import *
 from Address import *
-from llist import dllist, dllistnode
+from llist import *
+
 
 class CacheSetLRU:
 
     def __init__(self, block_size: int = 64, data_value=None, n_way: int = 1):
         self.n_way = n_way
-        self.data_blocks = dllist() # instead of []
-        self.capacity =  n_way # associativity, capacity is number of Nones in the list
-        self.tag_dictionary = dict() # Create dictionary: Key = tag, value = dllnode
+        self.data_blocks = dllist()  # instead of []
+        self.capacity = n_way  # associativity, capacity is number of Nones in the list
+        self.tag_dictionary = dict()  # Create dictionary: Key = tag, value = dllnode
         self.tags = [None] * n_way
         self.first_in = None
         for i in range(0, n_way):
@@ -34,19 +35,23 @@ class CacheSetLRU:
         self.tags[address.get_block_number()] = address.get_tag()
 
     def set_block(self, address, block):
+        evicted_block = self.data_blocks.popleft()
         # Evicted block = self.data_blocks.removeleftmostnode()
-        #update the dictionary:
-        #remove the node in the dictionary with the key value of the EVICTED block
-        #add to dictionary with new: key = address, value = dll(block)
-        #self.data_blocks.appendright(block)
+        # update the dictionary:
+        # remove the node in the dictionary with the key value of the EVICTED block
+        # add to dictionary with new: key = address, value = dll(block)
+        # self.data_blocks.appendright(block)
         pass
 
     def get_block(self, address):
+        node_in_dictionary = self.tag_dictionary[address.get_tag()]
+        put_at_end_node = self.data_blocks.remove(node_in_dictionary)
+        self.data_blocks.appendright(put_at_end_node)
+        return put_at_end_node
         # get the tag from the address, and find node inside DLL from the dictionry
         # put_at_end node = self.data_blocks.remove(found_node)
         # self.data_blocks.appendright(put_at_end_node)
         # return put_at_end_node.value
-        pass
 
     def print_data(self):
         for block in self.data_blocks:
