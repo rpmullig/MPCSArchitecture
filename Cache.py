@@ -17,10 +17,12 @@ class Cache:
 
     def get_double(self, address: Address):
         retrieved_set: CacheSet = self.cache_sets[address.get_index()]
+        this_tag = address.get_tag()
 
         # Check if block exists
-        for i in range(retrieved_set.n_way):
-            if retrieved_set.tags[i] == address.get_tag():
+        for i in range(0, retrieved_set.n_way):
+            # possible error in None value, so make sure that's not the case
+            if retrieved_set.tags[i] is this_tag and retrieved_set.data_blocks[i].get_value(address.get_offset()) is not None:
                 self.cpu.read_hits += 1
                 return retrieved_set.data_blocks[i].get_value(address.get_offset())
 
@@ -28,6 +30,7 @@ class Cache:
         self.cpu.read_misses += 1
         ram_block = self.cpu.ram.get_block(address)
         self.set_block_with_replacement(address, ram_block)
+
         return ram_block.get_value(address.get_offset())
 
     def set_double(self, address: Address, value):
@@ -39,7 +42,8 @@ class Cache:
         none_position = retrieved_set.search_for_none(address)  # not ideal / clean
 
         for i in range(0, retrieved_set.n_way):
-            if retrieved_set.tags[i] == address.get_tag():
+            this_tag = address.get_tag()
+            if retrieved_set.tags[i] == this_tag:
                 self.cpu.write_hits += 1
                 retrieved_set.data_blocks[i].set_value(address.get_offset(), value)
                 if_block_exists = True
@@ -55,9 +59,9 @@ class Cache:
                 self.set_block_with_replacement(address, ram_block)
             else:
                 # Need to set block into None position
+                self.cache_sets[address.get_index()].tags[none_position] = address.get_tag()
                 ram_block_value = ram_block.get_value(address.get_offset())
                 self.cache_sets[address.get_index()].data_blocks[none_position].set_value(address.get_offset(), ram_block_value)
-                # self.cache_sets[none_position].set_block(address, ram_block.get_value(address.get_offset()))
 
     def set_block_with_replacement(self, address, block):
         ram_block_value = block.get_value(address.get_offset())
@@ -113,7 +117,7 @@ class Cache:
     def set_block(self, address, block):
         self.data[address.block_index] = block
 
-
+                # self.cache_sets[none_position].set_block(address, ram_block.get_value(address.get_offset()))
 
 -------
 for current_set in self.cache_sets:

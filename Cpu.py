@@ -27,7 +27,7 @@ class Cpu:
     write_hits: int
     write_misses: int
 
-    def __init__(self, c=3840000, b=64, n=1, r='LRU', a='daxpy', d=480, p=True, f=32):
+    def __init__(self, c=65536, b=64, n=16, r='LRU', a='daxpy', d=100, p=True, f=32):
         self.cache_size = c
         self.block_size = b
         self.n_way = n
