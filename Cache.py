@@ -1,103 +1,75 @@
 from CacheSet import *
 from Address import *
+from random import *
 
 
 class Cache:
 
-    def __init__(self, num_set, n_way: int, block_size: int, policy="LRU"): #add cpu
-        #add self.cpu = cpu
+    def __init__(self, num_set, n_way: int, block_size: int, policy: str = "LRU", cpu=object):
         self.num_set = num_set
         self.n_way = n_way
         self.policy = policy
         self.cache_sets = []
+        self.cpu = cpu
         for i in range(0, self.num_set):
-            cache_set = CacheSet(False, None, block_size, None, n_way)  # A "row" in the cache - Valid bit, tag, data
+            cache_set = CacheSet(block_size, None, n_way)  # A "row" in the cache - size, data, associativity
             self.cache_sets.append(cache_set)
 
     def get_double(self, address: Address):
-        index = address.get_index()
-        tag = address.get_tag()
-        retrieved_set = self.cache_sets[index]
+        retrieved_set: CacheSet = self.cache_sets[address.get_index()]
 
-        '''
+        # Check if block exists
+        for i in range(retrieved_set.n_way):
+            if retrieved_set.tags[i] == address.get_tag():
+                self.cpu.read_hits += 1
+                return retrieved_set.data_blocks[i].get_value(address.get_offset())
 
-        if_block_exists = False
-
-        
-        for block in retrieved_set:
-            if block.get_tag() == address.tag():
-                self.cpu.read_hit += 1
-                return block.getValue(address.getOffset())
-        
-        if (if_block_exists == False):
-            self.cpu.read_miss += 1
-            
-            #GET THE BLOCK FROM RAM 
-            ram_block = self.cpu.ram.getBlock(index)
-            
-            setReplacementPolicy(addr, ram_block)
-            
-            return ram_block.getValue(addr.offset())
-
-        '''
-
-
+        # Get block from RAM
+        self.cpu.read_misses += 1
+        ram_block = self.cpu.ram.get_block(address)
+        self.set_block_with_replacement(address, ram_block)
+        return ram_block.get_value(address.get_offset())
 
     def set_double(self, address: Address, value):
-        index = address.get_index()
-        tag = address.get_tag()
-
-        retrieved_set = self.cache_sets[index]
-
-        '''
-        NEED TO FIGURE OUT IF THERE ARE NONE BLOCKS EXISTING IN THE SET:
-        
+        retrieved_set: CacheSet = self.cache_sets[address.get_index()]
         none_position = -1
         if_block_exists = False
-        
-        for i in len(retrieved_set):
-            if(retrieved_set[i] == None):
-                none_position = i
-                break
-        
-        for block in retrieved_set:
-            if block.get_tag() == address.tag():
-                self.cpu.hit += 1
-                block.setValue(address.getOffset(), value)
+
+        # Search for None Blocks in the set :
+        none_position = retrieved_set.search_for_none(address)  # not ideal / clean
+
+        for i in range(0, retrieved_set.n_way):
+            if retrieved_set.tags[i] == address.get_tag():
+                self.cpu.write_hits += 1
+                retrieved_set.data_blocks[i].set_value(address.get_offset(), value)
                 if_block_exists = True
                 break
-        
-        
-        if (if_block_exists == False):
-            self.cpu.write_miss += 1
-            
-            #GET THE BLOCK FROM RAM 
-            ram_block = self.cpu.ram.getBlock(index)
-            if(none_position = -1): #IF there doesnt exist a none block
-                #FULL, need to use replacement policy
-                self.setBlockWithReplacement(ram_block)
+
+        if not if_block_exists:
+            self.cpu.write_misses += 1
+
+            # Get block from RAM
+            ram_block = self.cpu.ram.get_block(address)
+            if none_position < 0:  # If there doesnt exist a none block
+                # Cache full, need to use replacement policy
+                self.set_block_with_replacement(address, ram_block)
             else:
-                #NEED TO SET BLOCK INTO NONE POSITION
-                retrieved_set[none_position] = ram_block
+                # Need to set block into None position
+                ram_block_value = ram_block.get_value(address.get_offset())
+                self.cache_sets[address.get_index()].data_blocks[none_position].set_value(address.get_offset(), ram_block_value)
+                # self.cache_sets[none_position].set_block(address, ram_block.get_value(address.get_offset()))
 
-        
-                
-                
-        '''
-
-        '''
-        for current_set in self.cache_sets:
-            if current_set.get_validation_bit() is False:
-                current_set.set_validation_bit(True)
-                current_set.set_block(address, value)
-        '''
-
-    def setBlockWithReplacment(self, address, block):
-        #Random from 0 to n_associativity
-        #Set cache_sets[address.index][random(0, n_way)] = block
-
-
-
+    def set_block_with_replacement(self, address, block):
+        ram_block_value = block.get_value(address.get_offset())
+        # if self.policy is "Random":
+        # Random from 0 to n_associativity
+        i = randrange(0, self.n_way)
+        address.set_offset(i)
+        self.cache_sets[address.get_index()].tags[i] = address.get_tag()
+        self.cache_sets[address.get_index()].data_blocks[i].set_value(address.get_offset(), ram_block_value)
+        # self.cache_sets[i].set_value(address, ram_block_value)
+        # elif self.policy is "LRU":
+        #    for set in self.cache_sets:
 
     def print_cache(self):
         # print(self.cache_sets)
@@ -140,4 +112,12 @@ class Cache:
 
     def set_block(self, address, block):
         self.data[address.block_index] = block
+
+
+
+-------
+for current_set in self.cache_sets:
+    if current_set.get_validation_bit() is False:
+        current_set.set_validation_bit(True)
+        current_set.set_block(address, value)
 '''

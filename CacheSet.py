@@ -1,45 +1,45 @@
 from DataBlock import *
+from Address import *
 
 
 class CacheSet:
 
-    def __init__(self, validation_bit=False, tag=None, block_size: int = 64, data_value=None, n_way: int = 1):
-        self.validation_bit = validation_bit
-        self.tag = tag
+    def __init__(self, block_size: int = 64, data_value=None, n_way: int = 1):
+        self.n_way = n_way
         self.data_blocks = []
+        self.tags = [None] * n_way
+        self.last_used_block = [None, 0]  # DataBlock and block number
         for i in range(0, n_way):
             tmp = DataBlock(block_size, data_value)
             self.data_blocks.append(tmp)
 
-    def get_cache_set_tag(self):
-        return self.tag
+    def search_for_none(self, address: Address):
+        for i in range(0, self.n_way):
+            if self.data_blocks[i].get_value(address.get_offset()):
+                return i
+        return -1
 
-    def compare_cache_set_tag(self, tag):
-        return self.tag == tag
+    def get_blocks(self):
+        return self.data_blocks
 
-    def get_validation_bit(self):
-        return self.validation_bit
+    def get_tags(self):
+        return self.tags
 
-    def set_validation_bit(self, new_bit):
-        self.validation_bit = new_bit
+    def get_tag(self, address):
+        return self.tags[address.get_block_number()]
+
+    def set_tag(self, address):
+        self.tags[address.get_block_number()] = address.get_tag()
 
     def set_block(self, address, value):
         self.data_blocks[address.get_block_number()].set_value(address.get_offset(), value)
 
     def get_block(self, address):
+        self.last_used_block = [self.data_blocks[address.get_block_number()], address.get_block_number()]
         return self.data_blocks[address.get_block_number()]
 
     def get_last_recently_used(self):
-        """
-        Gets the last recently use block in the set
-        :return: 
-        """""
-        tmp_oldest = self.data_blocks[0].get_last_update_time()
-        for block in self.data_blocks:
-            tmp_time = block.get_last_update_time()
-            if tmp_oldest > tmp_time:
-                tmp_oldest = tmp_time  # update the oldest value
-        return tmp_oldest
+        return self.last_used_block
 
     def print_data(self):
         for block in self.data_blocks:

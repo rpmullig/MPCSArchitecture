@@ -20,18 +20,19 @@ def test():
         my_cpu.store_double(address=b[i], value=2 * i)
         my_cpu.store_double(address=c[i], value=0)
 
-    my_cpu.ram.print_ram()
-    my_cpu.cache.print_cache()
-
     register0 = 3
-    '''
+
     # my_cpu.print_configuration()
     # print(test_addr)
 
     for i in range(n):
-        register1 = my_cpu.loadDouble(a[i])
-        register2 = my_cpu.multDouble(register0, register1)
-        register3 = my_cpu.loadDouble(b[i])
-        register4 = my_cpu.addDouble(register2, register3)
-        my_cpu.storeDouble(c[i], register4)
-    '''
+        register1 = my_cpu.load_double(a[i])
+        register2 = my_cpu.mult_double(register0, register1)
+        register3 = my_cpu.load_double(b[i])
+        register4 = my_cpu.add_double(register2, register3)
+        my_cpu.store_double(c[i], register4)
+
+    my_cpu.ram.print_ram()
+    my_cpu.cache.print_cache()
+    my_cpu.print_configuration()
+    my_cpu.print_results()

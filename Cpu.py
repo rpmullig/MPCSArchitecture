@@ -27,7 +27,7 @@ class Cpu:
     write_hits: int
     write_misses: int
 
-    def __init__(self, c=8 * 64, b=64, n=1, r='LRU', a='daxpy', d=100, p=True, f=32):
+    def __init__(self, c=3840000, b=64, n=1, r='LRU', a='daxpy', d=480, p=True, f=32):
         self.cache_size = c
         self.block_size = b
         self.n_way = n
@@ -36,6 +36,12 @@ class Cpu:
         self.matrix_dimension = d
         self.print_mode = p
         self.blocking_factor = f
+
+        self.instruction_count = 0
+        self.read_hits = 0
+        self.read_misses = 0
+        self.write_hits = 0
+        self.write_misses = 0
 
         # computed values determined by inputs
         if a == 'mxm_block':
@@ -47,19 +53,15 @@ class Cpu:
         self.cached_blocks = int(self.cache_size / self.block_size)
         self.set_number = int(self.cached_blocks / self.n_way)
         self.ram = Ram(math.ceil(self.ram_size / (self.block_size // 8)), self.block_size)  # Initialize RAM and cache
-        self.cache = Cache(self.set_number, self.n_way, self.block_size) #pass in cpu
+        self.cache = Cache(self.set_number, self.n_way, self.block_size, self.policy, self)
 
     def load_double(self, address):
         self.instruction_count += 1
-        check_cache = self.cache.get_double(address)
-        if check_cache[0] is True:
-            self.read_hits += 1
-            return check_cache[0]
-        else:
-            self.read_misses += 1
-            block = self.ram.get_block(address)
+        adr = Address(address, self.block_size, self.set_number)
+        return self.cache.get_double(adr)
 
     def store_double(self, address, value):
+        self.instruction_count += 1
         adr = Address(address, self.block_size, self.set_number)
         self.ram.set_block(adr, value)
         self.cache.set_double(adr, value)
@@ -68,22 +70,10 @@ class Cpu:
 
     @staticmethod
     def add_double(value1, value2):
-        """
-        Adds two doubles
-        :param value1:
-        :param value2:
-        :return: Summation of the two values
-        """
         return value1 + value2
 
     @staticmethod
     def mult_double(value1, value2):
-        """
-        Multiplies two doubles
-        :param value1:
-        :param value2:
-        :return: Product of two doubles
-        """
         return value1 * value2
 
     def print_configuration(self):
@@ -107,16 +97,21 @@ class Cpu:
         Prints the results of the emulation
         """
         try:
-            read_miss_rate = (self.read_misses / self.instruction_count) * 100  # percentage -- need to confirm
-            write_miss_rate = (self.write_misses / self.instruction_count) * 100  # percentage -- need to confirm
+            read_miss_rate = (self.read_misses / (self.read_misses + self.read_hits)) * 100
+            write_miss_rate = (self.write_misses / (self.write_misses + self.write_hits)) * 100
 
             print("RESULTS====================================")
             print("Instruction Count = {:23d}".format(self.instruction_count))
-            print("Read Hits = {:23d}".format(self.read_hits))
-            print("Read Misses = {:23d}".format(self.read_misses))
-            print("Read Miss Rate = {:.2f}%".format(read_miss_rate))
-            print("Write Hits = {:23d}".format(self.write_hits))
-            print("Write Misses = {:23d}".format(self.write_misses))
-            print("Write Miss Rate = {:.2f}%".format(write_miss_rate))
+            print("Read Hits = {:30d}".format(self.read_hits))
+            print("Read Misses = {:28d}".format(self.read_misses))
+            print("Read Miss Rate = {:24.2f}%".format(read_miss_rate))
+            print("Write Hits = {:29d}".format(self.write_hits))
+            print("Write Misses = {:27d}".format(self.write_misses))
+            print("Write Miss Rate = {:23.2f}%".format(write_miss_rate))
         except ValueError:
             print("Results printing error")
+
+
+'''
+block = self.ram.get_block(adr)
+'''
