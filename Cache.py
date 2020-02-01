@@ -1,4 +1,5 @@
-from CacheSet import *
+from CacheSetRandom import *
+from CacheSetLRU import *
 from Address import *
 from random import *
 
@@ -11,19 +12,23 @@ class Cache:
         self.policy = policy
         self.cache_sets = []
         self.cpu = cpu
-        for i in range(0, self.num_set):
-            cache_set = CacheSet(block_size, None, n_way)  # A "row" in the cache - size, data, associativity
+        for i in range(0, self.num_set): # CacheSet is a "row" in the cache - size, data, associativity
+            if self.policy == "random":
+                cache_set = CacheSetRandom(block_size, None, n_way)
+            elif self.policy == "LRU":
+                cache_set = CacheSetLRU(block_size, None, n_way)
+            else:
+                print("Did not mean to do this yet. FIFO")
             self.cache_sets.append(cache_set)
 
     def get_double(self, address: Address):
-        retrieved_set: CacheSet = self.cache_sets[address.get_index()]
+        retrieved_set = self.cache_sets[address.get_index()]
         this_tag = address.get_tag()
 
         # Check if block exists
         for i in range(0, retrieved_set.n_way):
             # possible error in None value, so make sure that's not the case
-            if retrieved_set.tags[i] is this_tag and retrieved_set.data_blocks[i].get_value(
-                    address.get_offset()) is not None:
+            if retrieved_set.tags[i] is this_tag and retrieved_set.data_blocks[i] is not None:
                 self.cpu.read_hits += 1
                 return retrieved_set.data_blocks[i].get_value(address.get_offset())
 
@@ -35,7 +40,7 @@ class Cache:
         return ram_block.get_value(address.get_offset())
 
     def set_double(self, address: Address, value):
-        retrieved_set: CacheSet = self.cache_sets[address.get_index()]
+        retrieved_set = self.cache_sets[address.get_index()]
         none_position = -1
         if_block_exists = False
 
@@ -60,28 +65,28 @@ class Cache:
                 self.set_block_with_replacement(address, ram_block)
             else:
                 # Need to set block into None position
-                self.cache_sets[address.get_index()].tags[none_position] = address.get_tag()
-                ram_block_value = ram_block.get_value(address.get_offset())
-                self.cache_sets[address.get_index()].data_blocks[none_position].set_value(address.get_offset(),
-                                                                                          ram_block_value)
+                retrieved_set.tags[none_position] = address.get_tag()
+                retrieved_set.data_blocks[none_position] = ram_block
 
     def set_block_with_replacement(self, address, block):
-        ram_block_value = block.get_value(address.get_offset())
+
         current_set = self.cache_sets[address.get_index()]
         i: int = 0
-        if self.policy is "random":
+        if self.policy == "random":
             # Random from 0 to n_associativity
             i = randrange(0, self.n_way)
-        elif self.policy is "LRU":
+            self.cache_sets[address.get_index()].tags[i] = address.get_tag()
+            self.cache_sets[address.get_index()].data_blocks[i] = block
+        elif self.policy == "LRU":
+
             pass
             # i = current_set.first_in
         else:  # must be FIFO
             pass
             # i = current_set.first_in
 
-        address.set_offset(i)
-        self.cache_sets[address.get_index()].tags[i] = address.get_tag()
-        self.cache_sets[address.get_index()].data_blocks[i].set_value(address.get_offset(), ram_block_value)
+
+
         # self.cache_sets[i].set_value(address, ram_block_value)
         # elif self.policy is "LRU":
         #    for set in self.cache_sets:

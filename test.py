@@ -2,7 +2,7 @@ from Cpu import *
 
 
 def test():
-    my_cpu = Cpu(d=100)  # defaults
+    my_cpu = Cpu(n=4, d=100)  # defaults
 
     sz = 1
 
@@ -32,7 +32,7 @@ def test():
         register4 = my_cpu.add_double(register2, register3)
         my_cpu.store_double(c[i], register4)
 
-    my_cpu.ram.print_ram()
+    #my_cpu.ram.print_ram()
     my_cpu.cache.print_cache()
     my_cpu.print_configuration()
     my_cpu.print_results()
