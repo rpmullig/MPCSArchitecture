@@ -14,8 +14,8 @@ class DataBlock:
         self.data = self.num_blocks * [data_value]
         self.time = time()
 
-    def get_value(self, index):
-        return self.data[index]
+    def get_value(self, offset):
+        return self.data[offset]
 
     def set_value(self, index, value):
         self.data[index] = value
