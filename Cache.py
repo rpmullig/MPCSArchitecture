@@ -33,7 +33,7 @@ class Cache:
                     self.cpu.read_hits += 1
                     return retrieved_set.data_blocks[i].get_value(address.get_offset())
         else:
-            print("About to get double with LRU policy")
+            #print("About to get double with LRU policy")
             if address.get_tag() in self.retrieved_set.tag_dictionary:
                 print("THere exists the tag value inside the dictionary with tag ", address.get_tag())
                 this_block = self.retrieved_set.tag_dictionary[address.get_tag()]
@@ -72,8 +72,11 @@ class Cache:
                 # print("Capcity is ", retrieved_set.capacity)
                 retrieved_set.capacity -= 1
                 block_node = dllistnode(ram_block)
-                retrieved_set.data_blocks.append(block_node)
-                retrieved_set.tag_dictionary[address.get_tag()] = block_node
+                retrieved_set.data_blocks.appendright(block_node)
+                # retrieved_set.tag_dictionary[address.get_tag()] = block_node
+                tag = address.get_tag()
+                location = len(retrieved_set.data_blocks) - 1 # new location of the node
+                retrieved_set.tag_dictionary[tag] = block_node
                 # print("Adding.... ", block_node)
                 # print("DLL is: ", retrieved_set.data_blocks)
                 # print("------")
@@ -118,27 +121,33 @@ class Cache:
             self.cache_sets[address.get_index()].tags[i] = address.get_tag()
             self.cache_sets[address.get_index()].data_blocks[i] = block
         elif self.policy == "LRU":
-            print("====================================================")
-            print("LRU Replacement Policy, about to replace a block")
+            # print("====================================================")
+            # print("LRU Replacement Policy, about to replace a block")
+            # print("Current Datablocks: ", current_set.data_blocks)
             remove_node = current_set.data_blocks.popleft()
             remove_tag = address.get_tag()
-            print("Need to Delete ")
+            # print("Need to Delete ")
+            # print("Default key", remove_tag)
+            # print("Tag Dictionary", current_set.tag_dictionary.items())
+            # print("Values Before delete: ", current_set.tag_dictionary.values())
+            # print("Block to delete ", current_set.data_blocks.popleft())
             for key, value in current_set.tag_dictionary.items():
-                if value is remove_node:
-                    print("Found a key --- required")
+                if value.value is remove_node:
+                    # print("Found a key --- required")
                     remove_tag = key
                     break
-            print("Remove_node with the key", remove_tag)
+            # print("Remove_node with the key", remove_tag)
             # print("Need to remove tag ", remove_tag)
-            # print("But the current dictionary looks like ", current_set.tag_dictionary)
+            print("But the current dictionary looks like ", current_set.tag_dictionary)
+
             del current_set.tag_dictionary[remove_tag]
-            # print("After the removal, the dictionary looks like: ", current_set.tag_dictionary)
+            print("After the removal, the dictionary looks like: ", current_set.tag_dictionary)
             add_node = dllistnode(block)
             add_tag = address.get_tag()
-            current_set.data_blocks.append(add_node)
-            current_set.tag_dictionary[add_tag] = current_set.data_blocks.append(add_node)
-            # current_set.tag_dictionary[add_tag] = current_set.data_blocks.nodeat(len(current_set.data_blocks) - 1)
-
+            current_set.data_blocks.appendright(add_node)
+            current_set.tag_dictionary[add_tag] = add_node
+            #current_set.tag_dictionary[add_tag] = current_set.data_blocks.nodeat(len(current_set.data_blocks) - 1)
+            # print("After delete: ", current_set.tag_dictionary)
             # remove_node = current_set.popleft()
             # self.cache_sets.dict.remove_key(removed_node's tag)
             # current_set.appendright(dllnode(block))
