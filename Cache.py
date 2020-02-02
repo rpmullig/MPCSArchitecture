@@ -72,11 +72,10 @@ class Cache:
             if address.get_tag() in retrieved_set.tag_dictionary:
                 if_block_exists = True
                 self.cpu.write_hits += 1
-
-            if if_block_exists is False:
+            else:
                 # Get block from RAM
-                ram_block = self.cpu.ram.get_block(address)
                 self.cpu.write_misses += 1
+                ram_block = self.cpu.ram.get_block(address)
 
                 # None position = capacity, still filling the set ---- Compulsary
                 if retrieved_set.capacity > 0:
@@ -107,9 +106,9 @@ class Cache:
                     break
 
             if if_block_exists is False:
+                # Get block from RAM
                 self.cpu.write_misses += 1
 
-                # Get block from RAM
                 ram_block = self.cpu.ram.get_block(address)
 
                 if none_position < 0:  # If there doesnt exist a none block
