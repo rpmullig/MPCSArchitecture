@@ -8,8 +8,8 @@ def main() -> None:
     flags = {
         '-c': 65536,
         '-b': 64,
-        '-n': 1,
-        '-r': 'LRU',
+        '-n': 2,
+        '-r': 'random',
         '-a': 'mxm_block',
         '-d': 480,
         '-p': True,  # for now to-do make sure to add functionality to this
