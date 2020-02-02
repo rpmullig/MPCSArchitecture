@@ -13,7 +13,7 @@ class Cache:
         self.cache_sets = []
         self.cpu = cpu
         for i in range(0, self.num_set):  # CacheSet is a "row" in the cache - size, data, associativity
-            if self.policy == "random":
+            if self.policy ==  "random":
                 self.cache_set = CacheSetRandom(block_size, None, n_way)
             elif self.policy == "LRU":
                 self.cache_set = CacheSetLRU(block_size, None, n_way)
