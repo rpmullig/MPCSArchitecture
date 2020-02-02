@@ -27,7 +27,7 @@ class Cpu:
     write_hits: int
     write_misses: int
 
-    def __init__(self, c=8*64, b=64, n=1, r='random', a='daxpy', d=480, p=True, f=32):
+    def __init__(self, c=8**16, b=64, n=1, r='random', a='daxpy', d=480, p=True, f=32):
         self.cache_size = c
         self.block_size = b
         self.n_way = n
@@ -110,8 +110,3 @@ class Cpu:
             print("Write Miss Rate = {:23.2f}%".format(write_miss_rate))
         except ValueError:
             print("Results printing error")
-
-
-'''
-block = self.ram.get_block(adr)
-'''

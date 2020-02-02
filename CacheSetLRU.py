@@ -27,4 +27,4 @@ class CacheSetLRU:
 
     def print_data(self):
         for block in self.data_blocks:
-            block.print_data()
+            block[0].print_data()

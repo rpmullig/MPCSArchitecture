@@ -33,21 +33,21 @@ class Cache:
                     self.cpu.read_hits += 1
                     return retrieved_set.data_blocks[i].get_value(address.get_offset())
         else:
-            #print("About to get double with LRU policy")
-            if address.get_tag() in self.retrieved_set.tag_dictionary:
-                print("THere exists the tag value inside the dictionary with tag ", address.get_tag())
-                this_block = self.retrieved_set.tag_dictionary[address.get_tag()]
-                print("Looking ")
-                touched_node = retrieved_set.data_blocks.remove(this_block)
+            if this_tag in retrieved_set.tag_dictionary.keys():
+                self.cpu.read_hits += 1
+                this_node = retrieved_set.tag_dictionary[this_tag]
+                index = 0
+                for i in range(retrieved_set.data_blocks.size):
+                    current_node = retrieved_set.data_blocks.nodeat(i)
+                    if current_node.value[1] is this_tag:
+                        index = i
+                        break
+
+                touched_node = retrieved_set.data_blocks.nodeat(index)
+                retrieved_set.data_blocks.remove(touched_node)
                 retrieved_set.data_blocks.appendright(touched_node)
-                touched_block = touched_node.value
-                return touched_block.get_value(address.get_offset())  ## returns a block
-            # lookedup_node = self.cache_set_dictionary[address.get_tag()]
-            # if lookedup_node exists in retrieved_set:
-            #   add_to_back_node = retrieved_set.remove(lookedup_node)
-            #   retrieved_set.appendright(add_to_back_node)
-            #   retrieeved_block = add_to_back_node.value
-            #   return retrieved_block.getData(address.offset())
+                touched_block = touched_node.value[0]
+                return touched_block.get_value(address.get_offset())  # returns a block
 
         # Get block from RAM
         self.cpu.read_misses += 1
@@ -68,18 +68,14 @@ class Cache:
 
             # None position = capacity, still filling the set
             if retrieved_set.capacity > 0:
-                # print("at set ", address.get_index())
-                # print("Capcity is ", retrieved_set.capacity)
                 retrieved_set.capacity -= 1
-                block_node = dllistnode(ram_block)
-                retrieved_set.data_blocks.appendright(block_node)
-                # retrieved_set.tag_dictionary[address.get_tag()] = block_node
                 tag = address.get_tag()
-                location = len(retrieved_set.data_blocks) - 1 # new location of the node
-                retrieved_set.tag_dictionary[tag] = block_node
-                # print("Adding.... ", block_node)
-                # print("DLL is: ", retrieved_set.data_blocks)
-                # print("------")
+                block_node = dllistnode([ram_block, tag])
+                retrieved_set.data_blocks.appendright(block_node)
+                # retrieved_set.tag_dictionary[tag] = block_node
+
+                location = len(retrieved_set.data_blocks) - 1  # new location of the node
+                retrieved_set.tag_dictionary[tag] = retrieved_set.data_blocks.nodeat(location)
                 # Need to add key:tag, value: retrieved_set.getrightnode()
             else:
                 self.set_block_with_replacement(address, ram_block)
@@ -116,38 +112,27 @@ class Cache:
         current_set = self.cache_sets[address.get_index()]
         i: int = 0
         if self.policy == "random":
-            # Random from 0 to n_associativity
-            i = randrange(0, self.n_way)
+            i = randrange(0, self.n_way)  # Random from 0 to n_associativity
             self.cache_sets[address.get_index()].tags[i] = address.get_tag()
             self.cache_sets[address.get_index()].data_blocks[i] = block
         elif self.policy == "LRU":
-            # print("====================================================")
-            # print("LRU Replacement Policy, about to replace a block")
-            # print("Current Datablocks: ", current_set.data_blocks)
-            remove_node = current_set.data_blocks.popleft()
-            remove_tag = address.get_tag()
-            # print("Need to Delete ")
-            # print("Default key", remove_tag)
-            # print("Tag Dictionary", current_set.tag_dictionary.items())
-            # print("Values Before delete: ", current_set.tag_dictionary.values())
-            # print("Block to delete ", current_set.data_blocks.popleft())
-            for key, value in current_set.tag_dictionary.items():
-                if value.value is remove_node:
-                    # print("Found a key --- required")
-                    remove_tag = key
-                    break
-            # print("Remove_node with the key", remove_tag)
-            # print("Need to remove tag ", remove_tag)
-            print("But the current dictionary looks like ", current_set.tag_dictionary)
+            remove_node = current_set.data_blocks.pop()
+            remove_tag = remove_node[1]
+
+            # for value in current_set.tag_dictionary.values():
+            #     if value.value[1] is remove_node[1]:
+            #         print("Found a key --- required")
+            #         remove_tag = remove_node[1]
+            #         break
 
             del current_set.tag_dictionary[remove_tag]
-            print("After the removal, the dictionary looks like: ", current_set.tag_dictionary)
-            add_node = dllistnode(block)
+
             add_tag = address.get_tag()
+            add_node = dllistnode([block, add_tag])
             current_set.data_blocks.appendright(add_node)
-            current_set.tag_dictionary[add_tag] = add_node
-            #current_set.tag_dictionary[add_tag] = current_set.data_blocks.nodeat(len(current_set.data_blocks) - 1)
-            # print("After delete: ", current_set.tag_dictionary)
+            # current_set.tag_dictionary[add_tag] = add_node
+            current_set.tag_dictionary[add_tag] = current_set.data_blocks.nodeat(len(current_set.data_blocks) - 1)
+
             # remove_node = current_set.popleft()
             # self.cache_sets.dict.remove_key(removed_node's tag)
             # current_set.appendright(dllnode(block))
@@ -156,10 +141,6 @@ class Cache:
         else:  # must be FIFO
             pass
             # i = current_set.first_in
-
-        # self.cache_sets[i].set_value(address, ram_block_value)
-        # elif self.policy is "LRU":
-        #    for set in self.cache_sets:
 
     def print_cache(self):
         # print(self.cache_sets)
@@ -210,4 +191,21 @@ for current_set in self.cache_sets:
     if current_set.get_validation_bit() is False:
         current_set.set_validation_bit(True)
         current_set.set_block(address, value)
+        
+        
+        # self.cache_sets[i].set_value(address, ram_block_value)
+        # elif self.policy is "LRU":
+        #    for set in self.cache_sets:
+        
+        
+        
+        
+        get_block 
+        
+                    # lookedup_node = self.cache_set_dictionary[address.get_tag()]
+            # if lookedup_node exists in retrieved_set:
+            #   add_to_back_node = retrieved_set.remove(lookedup_node)
+            #   retrieved_set.appendright(add_to_back_node)
+            #   retrieeved_block = add_to_back_node.value
+            #   return retrieved_block.getData(address.offset())
 '''
