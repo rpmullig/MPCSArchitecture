@@ -9,7 +9,7 @@ def main() -> None:
         '-c': 65536,
         '-b': 64,
         '-n': 2,
-        '-r': 'random',
+        '-r': 'LRU',
         '-a': 'mxm_block',
         '-d': 480,
         '-p': True,  # for now to-do make sure to add functionality to this

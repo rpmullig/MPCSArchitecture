@@ -13,7 +13,7 @@ class Cache:
         self.cache_sets = []
         self.cpu = cpu
         for i in range(0, self.num_set):  # CacheSet is a "row" in the cache - size, data, associativity
-            if self.policy ==  "random":
+            if self.policy == "random":
                 self.cache_set = CacheSetRandom(block_size, None, n_way)
             elif self.policy == "LRU":
                 self.cache_set = CacheSetLRU(block_size, None, n_way)
@@ -62,23 +62,30 @@ class Cache:
         if_block_exists = False
 
         if self.policy == "LRU":
-            self.cpu.write_misses += 1
-            # Get block from RAM
-            ram_block = self.cpu.ram.get_block(address)
 
-            # None position = capacity, still filling the set
-            if retrieved_set.capacity > 0:
-                retrieved_set.capacity -= 1
-                tag = address.get_tag()
-                block_node = dllistnode([ram_block, tag])
-                retrieved_set.data_blocks.appendright(block_node)
-                # retrieved_set.tag_dictionary[tag] = block_node
+            if address.get_tag() in retrieved_set.tag_dictionary:
+                if_block_exists = True
+                self.cpu.write_hits += 1
 
-                location = len(retrieved_set.data_blocks) - 1  # new location of the node
-                retrieved_set.tag_dictionary[tag] = retrieved_set.data_blocks.nodeat(location)
-                # Need to add key:tag, value: retrieved_set.getrightnode()
-            else:
-                self.set_block_with_replacement(address, ram_block)
+            if if_block_exists is False:
+                # Get block from RAM
+                ram_block = self.cpu.ram.get_block(address)
+                self.cpu.write_misses += 1
+
+                # None position = capacity, still filling the set ---- Compulsary
+                if retrieved_set.capacity > 0:
+
+                    retrieved_set.capacity -= 1
+                    tag = address.get_tag()
+                    block_node = dllistnode([ram_block, tag])
+                    retrieved_set.data_blocks.appendright(block_node)
+                    # retrieved_set.tag_dictionary[tag] = block_node
+
+                    location = len(retrieved_set.data_blocks) - 1  # new location of the node
+                    retrieved_set.tag_dictionary[tag] = retrieved_set.data_blocks.nodeat(location)
+                    # Need to add key:tag, value: retrieved_set.getrightnode()
+                else:
+                    self.set_block_with_replacement(address, ram_block)
         else:
 
             # Search for None Blocks in the set :
@@ -119,12 +126,6 @@ class Cache:
             remove_node = current_set.data_blocks.pop()
             remove_tag = remove_node[1]
 
-            # for value in current_set.tag_dictionary.values():
-            #     if value.value[1] is remove_node[1]:
-            #         print("Found a key --- required")
-            #         remove_tag = remove_node[1]
-            #         break
-
             del current_set.tag_dictionary[remove_tag]
 
             add_tag = address.get_tag()
@@ -132,11 +133,6 @@ class Cache:
             current_set.data_blocks.appendright(add_node)
             # current_set.tag_dictionary[add_tag] = add_node
             current_set.tag_dictionary[add_tag] = current_set.data_blocks.nodeat(len(current_set.data_blocks) - 1)
-
-            # remove_node = current_set.popleft()
-            # self.cache_sets.dict.remove_key(removed_node's tag)
-            # current_set.appendright(dllnode(block))
-            # self.cache_sets[address.getTag()] = current_set.nodeat_end_of_list()
 
         else:  # must be FIFO
             pass
@@ -149,63 +145,3 @@ class Cache:
             print("set: %d" % i)
             self.cache_sets[i].print_data()
             print('-----')
-
-
-'''
-    set_dict = dict()
-            for x in range(0, self.n_way):
-                set_dict[i] = [False, None]  # valid bit and tag per each data block
-
-    def get_double(self, address):
-        tag = address.block_tag
-        index = address.block_index
-        target_set = self.data[index]
-        target_set_meta_data = self.meta_data_on_set[index]
-        for b in range(0, len(target_set)):
-            if target_set_meta_data[b][1] == tag and target_set_meta_data[b][0] is True:
-                return [True, target_set[b]]  # hit status and data
-        return [False, 0]
-
-    def set_double_least_recently_used(self, address, value):
-        if self.at_capacity is False:
-            self.get_block(address.get_index())
-
-    def set_double_first_in_first_out(self, address, value):
-        if self.at_capacity is False:
-            self.get_block(address.get_index())
-
-    def set_double_random(self, address, value):
-        if self.at_capacity is False:
-            self.get_block(address.get_index())
-
-    def get_block(self, address):
-        return self.data[address.block_number]
-
-    def set_block(self, address, block):
-        self.data[address.block_index] = block
-
-                # self.cache_sets[none_position].set_block(address, ram_block.get_value(address.get_offset()))
-
--------
-for current_set in self.cache_sets:
-    if current_set.get_validation_bit() is False:
-        current_set.set_validation_bit(True)
-        current_set.set_block(address, value)
-        
-        
-        # self.cache_sets[i].set_value(address, ram_block_value)
-        # elif self.policy is "LRU":
-        #    for set in self.cache_sets:
-        
-        
-        
-        
-        get_block 
-        
-                    # lookedup_node = self.cache_set_dictionary[address.get_tag()]
-            # if lookedup_node exists in retrieved_set:
-            #   add_to_back_node = retrieved_set.remove(lookedup_node)
-            #   retrieved_set.appendright(add_to_back_node)
-            #   retrieeved_block = add_to_back_node.value
-            #   return retrieved_block.getData(address.offset())
-'''

@@ -67,12 +67,12 @@ class Cpu:
         # print("Block size ", self.block_size)
         # print("Address %d: block num [%d] offset [%d]" % (address, adr.block_number, adr.block_offset))
 
-    @staticmethod
-    def add_double(value1, value2):
+    def add_double(self, value1, value2):
+        self.instruction_count += 1
         return value1 + value2
 
-    @staticmethod
-    def mult_double(value1, value2):
+    def mult_double(self, value1, value2):
+        self.instruction_count += 1
         return value1 * value2
 
     def print_configuration(self):
@@ -85,7 +85,7 @@ class Cpu:
         print("Block Size = {:23d} bytes".format(self.block_size))
         print("Total Blocks in cache = {:11d} blocks".format(self.cached_blocks))
         print("Associativity = {:26d}".format(self.n_way))
-        print("Number of Sets = {:25d}".format(self.cache_size))
+        print("Number of Sets = {:25d}".format(self.set_number))
         print("Replacement Policy  = {:>20s}".format(self.policy))
         print("Algorithm  = {:>29s}".format(self.algorithm))
         print("MXM Blocking Factor  = {:19d}".format(self.blocking_factor))
