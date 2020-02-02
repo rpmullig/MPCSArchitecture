@@ -29,7 +29,6 @@ def test():
             
         print(c)
 
-        
         # my_cpu.print_configuration()
         # print(test_addr)
 
