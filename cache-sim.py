@@ -11,7 +11,7 @@ def main() -> None:
         '-r': 'LRU',
         '-a': 'mxm_block',
         '-d': 480,
-        '-p': True,
+        '-p': False,
         '-f': 32
     }
 
