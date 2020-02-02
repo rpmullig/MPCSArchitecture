@@ -17,7 +17,7 @@ def main() -> None:
     }
 
     inputs = sys.argv
-    i: int = 1  # first argument is the file name, skip that in following loop
+    i = 1  # first argument is the file name, skip that in following loop
 
     while i < len(inputs):
         try:
