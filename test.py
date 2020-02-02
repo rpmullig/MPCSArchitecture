@@ -2,7 +2,7 @@ from Cpu import *
 
 
 def test():
-    my_cpu = Cpu(n=4, d=100)  # defaults
+    my_cpu = Cpu(n=4, d=100, r="LRU")  # defaults
 
     sz = 1
 
@@ -24,7 +24,9 @@ def test():
 
     # my_cpu.print_configuration()
     # print(test_addr)
-
+    '''
+    
+    
     for i in range(n):
         register1 = my_cpu.load_double(a[i])
         register2 = my_cpu.mult_double(register0, register1)
@@ -33,6 +35,8 @@ def test():
         my_cpu.store_double(c[i], register4)
 
     #my_cpu.ram.print_ram()
-    my_cpu.cache.print_cache()
+ 
     my_cpu.print_configuration()
     my_cpu.print_results()
+    '''
+    my_cpu.cache.print_cache()

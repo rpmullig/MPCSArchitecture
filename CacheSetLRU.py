@@ -12,15 +12,6 @@ class CacheSetLRU:
         self.tag_dictionary = dict()  # Create dictionary: Key = tag, value = dllnode
         self.tags = [None] * n_way
         self.first_in = None
-        for i in range(0, n_way):
-            tmp = DataBlock(block_size, data_value)
-            self.data_blocks.append(tmp)
-
-    def search_for_none(self, address: Address):
-        for i in range(0, self.n_way):
-            if self.data_blocks[i] is None:
-                return i
-        return -1
 
     def get_blocks(self):
         return self.data_blocks
@@ -33,25 +24,6 @@ class CacheSetLRU:
 
     def set_tag(self, address):
         self.tags[address.get_block_number()] = address.get_tag()
-
-    def set_block(self, address, block):
-        evicted_block = self.data_blocks.popleft()
-        # Evicted block = self.data_blocks.removeleftmostnode()
-        # update the dictionary:
-        # remove the node in the dictionary with the key value of the EVICTED block
-        # add to dictionary with new: key = address, value = dll(block)
-        # self.data_blocks.appendright(block)
-        pass
-
-    def get_block(self, address):
-        node_in_dictionary = self.tag_dictionary[address.get_tag()]
-        put_at_end_node = self.data_blocks.remove(node_in_dictionary)
-        self.data_blocks.appendright(put_at_end_node)
-        return put_at_end_node
-        # get the tag from the address, and find node inside DLL from the dictionry
-        # put_at_end node = self.data_blocks.remove(found_node)
-        # self.data_blocks.appendright(put_at_end_node)
-        # return put_at_end_node.value
 
     def print_data(self):
         for block in self.data_blocks:
