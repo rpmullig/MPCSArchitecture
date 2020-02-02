@@ -1,4 +1,3 @@
-
 class DataBlock:
 
     def __init__(self, size, data_value=None):

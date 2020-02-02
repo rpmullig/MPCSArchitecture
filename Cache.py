@@ -18,7 +18,7 @@ class Cache:
             elif self.policy == "LRU":
                 self.cache_set = CacheSetLRU(block_size, None, n_way)
             else:
-                print("Did not mean to do this yet. FIFO")
+                print("FIFO not installed")
             self.cache_sets.append(self.cache_set)
 
     def get_double(self, address: Address):
@@ -29,10 +29,10 @@ class Cache:
         if self.policy != "LRU":
             for i in range(0, retrieved_set.n_way):
                 # possible error in None value, so make sure that's not the case
-                if retrieved_set.tags[i] is this_tag and retrieved_set.data_blocks[i] is not None:
+                if retrieved_set.tags[i] == this_tag and retrieved_set.data_blocks[i] is not None:
                     self.cpu.read_hits += 1
                     return retrieved_set.data_blocks[i].get_value(address.get_offset())
-        else:
+        else:  # LRU
             if this_tag in retrieved_set.tag_dictionary.keys():
                 self.cpu.read_hits += 1
                 this_node = retrieved_set.tag_dictionary[this_tag]
@@ -42,12 +42,18 @@ class Cache:
                     if current_node.value[1] is this_tag:
                         index = i
                         break
-
+                # swap to front of the list
                 touched_node = retrieved_set.data_blocks.nodeat(index)
                 retrieved_set.data_blocks.remove(touched_node)
                 retrieved_set.data_blocks.appendright(touched_node)
                 touched_block = touched_node.value[0]
                 return touched_block.get_value(address.get_offset())  # returns a block
+            else:
+                # Get block from RAM
+                self.cpu.read_misses += 1
+                ram_block = self.cpu.ram.get_block(address)
+                self.set_block_with_replacement(address, ram_block)
+                return ram_block.get_value(address.get_offset())
 
         # Get block from RAM
         self.cpu.read_misses += 1
@@ -99,7 +105,8 @@ class Cache:
                     retrieved_set.data_blocks[i].set_value(address.get_offset(), value)
                     if_block_exists = True
                     break
-            if not if_block_exists:
+
+            if if_block_exists is False:
                 self.cpu.write_misses += 1
 
                 # Get block from RAM

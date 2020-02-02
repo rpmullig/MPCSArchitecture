@@ -43,12 +43,11 @@ class Cpu:
         self.write_misses = 0
 
         # computed values determined by inputs
-        if a == 'mxm_block':
-            self.ram_size = d * d * 3
-        elif a == 'daxpy':
+        if a == 'daxpy':
             self.ram_size = d * 3
-        else:
-            raise ValueError
+        else:   # mxm_block or mxm
+            self.ram_size = d * d * 3
+
         self.cached_blocks = int(self.cache_size / self.block_size)
         self.set_number = int(self.cached_blocks / self.n_way)
         self.ram = Ram(math.ceil(self.ram_size / (self.block_size // 8)), self.block_size)  # Initialize RAM and cache
@@ -64,8 +63,6 @@ class Cpu:
         adr = Address(address, self.block_size, self.set_number)
         self.ram.set_block(adr, value)
         self.cache.set_double(adr, value)
-        # print("Block size ", self.block_size)
-        # print("Address %d: block num [%d] offset [%d]" % (address, adr.block_number, adr.block_offset))
 
     def add_double(self, value1, value2):
         self.instruction_count += 1
@@ -76,9 +73,6 @@ class Cpu:
         return value1 * value2
 
     def print_configuration(self):
-        """
-        Prints the current configuration of the global variable inputs
-        """
         print("INPUTS====================================")
         print("Ram Size = {:26d} bytes".format(self.ram_size * 8))  # computed value
         print("Cache Size = {:23d} bytes".format(self.cache_size))
@@ -92,9 +86,6 @@ class Cpu:
         print("Matrix or Vector dimension  = {:12d}".format(self.matrix_dimension))
 
     def print_results(self):
-        """
-        Prints the results of the emulation
-        """
         try:
             read_miss_rate = (self.read_misses / (self.read_misses + self.read_hits)) * 100
             write_miss_rate = (self.write_misses / (self.write_misses + self.write_hits)) * 100
