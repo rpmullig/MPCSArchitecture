@@ -75,10 +75,18 @@ class Cache:
         if self.policy == "LRU":
 
             if address.get_tag() in retrieved_set.tag_dictionary:
-                if retrieved_set.tag_dictionary[address.get_tag()].value[0].get_value(address.get_offset()) == value:
-                    if_block_exists = True
-                    self.cpu.write_hits += 1
-                    return
+                for i in range(retrieved_set.data_blocks.size):
+                    current_node = retrieved_set.data_blocks.nodeat(i)
+                    if current_node.value[1] is address.get_tag():
+                        # if_block_exists = True
+                        self.cpu.write_hits += 1
+                        index = i
+                        # swap to front of the list
+                        touched_node = retrieved_set.data_blocks.nodeat(index)
+                        retrieved_set.data_blocks.remove(touched_node)
+                        touched_node.value[0].set_value(address.get_offset(), value)
+                        retrieved_set.data_blocks.appendright(touched_node)
+                        return
 
             if if_block_exists is not True:
                 # Get block from RAM

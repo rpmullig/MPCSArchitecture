@@ -120,7 +120,7 @@ def main() -> None:
     my_cpu.print_configuration()
     my_cpu.print_results()
 
-    if my_cpu.print_results is True:
+    if p is True:
         result_matrix = []
         for address in c:
             result_matrix.append(my_cpu.load_double(address=address))

@@ -74,7 +74,7 @@ class Cpu:
 
     def print_configuration(self):
         print("INPUTS====================================")
-        print("Ram Size = {:26d} bytes".format(self.ram_size * 8))  # computed value
+        print("Ram Size = {:25d} bytes".format(self.ram_size * 8))  # computed value
         print("Cache Size = {:23d} bytes".format(self.cache_size))
         print("Block Size = {:23d} bytes".format(self.block_size))
         print("Total Blocks in cache = {:11d} blocks".format(self.cached_blocks))
@@ -90,8 +90,8 @@ class Cpu:
             read_miss_rate = (self.read_misses / (self.read_misses + self.read_hits)) * 100
             write_miss_rate = (self.write_misses / (self.write_misses + self.write_hits)) * 100
 
-            print("RESULTS====================================")
-            print("Instruction Count = {:23d}".format(self.instruction_count))
+            print("RESULTS===================================")
+            print("Instruction Count = {:22d}".format(self.instruction_count))
             print("Read Hits = {:30d}".format(self.read_hits))
             print("Read Misses = {:28d}".format(self.read_misses))
             print("Read Miss Rate = {:24.2f}%".format(read_miss_rate))
