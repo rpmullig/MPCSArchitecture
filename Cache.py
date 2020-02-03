@@ -33,21 +33,27 @@ class Cache:
                     self.cpu.read_hits += 1
                     return retrieved_set.data_blocks[i].get_value(address.get_offset())
         else:  # LRU
-            if this_tag in retrieved_set.tag_dictionary.keys():
-                self.cpu.read_hits += 1
+            if this_tag in retrieved_set.tag_dictionary:
                 this_node = retrieved_set.tag_dictionary[this_tag]
                 index = 0
                 for i in range(retrieved_set.data_blocks.size):
                     current_node = retrieved_set.data_blocks.nodeat(i)
                     if current_node.value[1] is this_tag:
+                        self.cpu.read_hits += 1
                         index = i
-                        break
-                # swap to front of the list
-                touched_node = retrieved_set.data_blocks.nodeat(index)
-                retrieved_set.data_blocks.remove(touched_node)
-                retrieved_set.data_blocks.appendright(touched_node)
-                touched_block = touched_node.value[0]
-                return touched_block.get_value(address.get_offset())  # returns a block
+                        # swap to front of the list
+                        touched_node = retrieved_set.data_blocks.nodeat(index)
+                        retrieved_set.data_blocks.remove(touched_node)
+                        retrieved_set.data_blocks.appendright(touched_node)
+                        touched_block = touched_node.value[0]
+                        return touched_block.get_value(address.get_offset())  # returns a block
+
+                # Get block from RAM
+                self.cpu.read_misses += 1
+                ram_block = self.cpu.ram.get_block(address)
+                self.set_block_with_replacement(address, ram_block)
+                return ram_block.get_value(address.get_offset())
+
             else:
                 # Get block from RAM
                 self.cpu.read_misses += 1
@@ -59,7 +65,6 @@ class Cache:
         self.cpu.read_misses += 1
         ram_block = self.cpu.ram.get_block(address)
         self.set_block_with_replacement(address, ram_block)
-
         return ram_block.get_value(address.get_offset())
 
     def set_double(self, address: Address, value):
@@ -70,9 +75,12 @@ class Cache:
         if self.policy == "LRU":
 
             if address.get_tag() in retrieved_set.tag_dictionary:
-                if_block_exists = True
-                self.cpu.write_hits += 1
-            else:
+                if retrieved_set.tag_dictionary[address.get_tag()].value[0].get_value(address.get_offset()) == value:
+                    if_block_exists = True
+                    self.cpu.write_hits += 1
+                    return
+
+            if if_block_exists is not True:
                 # Get block from RAM
                 self.cpu.write_misses += 1
                 ram_block = self.cpu.ram.get_block(address)
@@ -94,16 +102,18 @@ class Cache:
         else:
 
             # Search for None Blocks in the set :
-            none_position = retrieved_set.search_for_none(address)  # not ideal / clean
+            none_position = retrieved_set.search_for_none(address)
 
             # Random and FIFO Policies
             for i in range(0, retrieved_set.n_way):
                 this_tag = address.get_tag()
                 if retrieved_set.tags[i] == this_tag:
-                    self.cpu.write_hits += 1
-                    retrieved_set.data_blocks[i].set_value(address.get_offset(), value)
-                    if_block_exists = True
-                    break
+                    if retrieved_set.data_blocks[i].get_value(address.get_offset()) == value:
+                        self.cpu.write_hits += 1
+                        if_block_exists = True
+                        return
+                    # else:
+                    # retrieved_set.data_blocks[i].set_value(address.get_offset(), value)
 
             if if_block_exists is False:
                 # Get block from RAM
@@ -115,7 +125,7 @@ class Cache:
                     # Cache full, need to use replacement policy
                     self.set_block_with_replacement(address, ram_block)
                 else:
-                    if self.policy != "LRU":
+                    if self.policy != "LRU":  # not needed, but just to be sure
                         # Need to set block into None position
                         retrieved_set.tags[none_position] = address.get_tag()
                         retrieved_set.data_blocks[none_position] = ram_block
