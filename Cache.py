@@ -32,40 +32,39 @@ class Cache:
                 if retrieved_set.tags[i] == this_tag and retrieved_set.data_blocks[i] is not None:
                     self.cpu.read_hits += 1
                     return retrieved_set.data_blocks[i].get_value(address.get_offset())
+            # Get block from RAM
+            self.cpu.read_misses += 1
+            ram_block = self.cpu.ram.get_block(address)
+            self.set_block_with_replacement(address, ram_block)
+            return ram_block.get_value(address.get_offset())
+
         else:  # LRU
             if this_tag in retrieved_set.tag_dictionary:
                 this_node = retrieved_set.tag_dictionary[this_tag]
-                index = 0
-                for i in range(retrieved_set.data_blocks.size):
-                    current_node = retrieved_set.data_blocks.nodeat(i)
-                    if current_node.value[1] is this_tag:
-                        self.cpu.read_hits += 1
-                        index = i
-                        # swap to front of the list
-                        touched_node = retrieved_set.data_blocks.nodeat(index)
-                        retrieved_set.data_blocks.remove(touched_node)
-                        retrieved_set.data_blocks.appendright(touched_node)
-                        touched_block = touched_node.value[0]
-                        return touched_block.get_value(address.get_offset())  # returns a block
-
-                # Get block from RAM
-                self.cpu.read_misses += 1
-                ram_block = self.cpu.ram.get_block(address)
-                self.set_block_with_replacement(address, ram_block)
-                return ram_block.get_value(address.get_offset())
-
+                self.cpu.read_hits += 1
+                # swap to front of the list
+                removed_node = retrieved_set.data_blocks.remove(this_node)
+                retrieved_set.data_blocks.appendright(removed_node)
+                touched_block = removed_node[0]
+                # update in the tag dictionary
+                location = len(retrieved_set.data_blocks) - 1
+                retrieved_set.tag_dictionary[address.get_tag()] = retrieved_set.data_blocks.nodeat(location)
+                return touched_block.get_value(address.get_offset())  # returns a block
             else:
                 # Get block from RAM
                 self.cpu.read_misses += 1
                 ram_block = self.cpu.ram.get_block(address)
-                self.set_block_with_replacement(address, ram_block)
-                return ram_block.get_value(address.get_offset())
+                if retrieved_set.capacity > 0:
 
-        # Get block from RAM
-        self.cpu.read_misses += 1
-        ram_block = self.cpu.ram.get_block(address)
-        self.set_block_with_replacement(address, ram_block)
-        return ram_block.get_value(address.get_offset())
+                    retrieved_set.capacity -= 1
+                    tag = address.get_tag()
+                    retrieved_set.data_blocks.appendright(dllistnode([ram_block, tag]))
+
+                    location = len(retrieved_set.data_blocks) - 1  # new location of the node
+                    retrieved_set.tag_dictionary[tag] = retrieved_set.data_blocks.nodeat(location)
+                else:
+                    self.set_block_with_replacement(address, ram_block)
+                return ram_block.get_value(address.get_offset())
 
     def set_double(self, address: Address, value):
         retrieved_set = self.cache_sets[address.get_index()]
@@ -75,44 +74,43 @@ class Cache:
         if self.policy == "LRU":
 
             if address.get_tag() in retrieved_set.tag_dictionary:
-                for i in range(retrieved_set.data_blocks.size):
-                    current_node = retrieved_set.data_blocks.nodeat(i)
-                    if current_node.value[1] is address.get_tag():
-                        # if_block_exists = True
-                        self.cpu.write_hits += 1
-                        index = i
-                        # swap to front of the list
-                        touched_node = retrieved_set.data_blocks.nodeat(index)
-                        retrieved_set.data_blocks.remove(touched_node)
-                        touched_node.value[0].set_value(address.get_offset(), value)
-                        retrieved_set.data_blocks.appendright(touched_node)
-                        return
+                self.cpu.write_hits += 1
+                this_tag = address.get_tag()
+                # swap to front of the list
+                for node in retrieved_set.data_blocks:
+                    if retrieved_set.tag_dictionary[this_tag] == node:
+                        node.set_value(address.get_offset(), value)
 
-            if if_block_exists is not True:
+                # removed_node = retrieved_set.data_blocks.remove(retrieved_set.tag_dictionary[this_tag])
+                # retrieved_set.data_blocks.appendright(removed_node)
+                # touched_block = removed_node[0]
+                # # update in the tag dictionary
+                # location = len(retrieved_set.data_blocks) - 1
+                # retrieved_set.tag_dictionary[address.get_tag()] = retrieved_set.data_blocks.nodeat(location)
+                # return
+
+            else:
                 # Get block from RAM
                 self.cpu.write_misses += 1
                 ram_block = self.cpu.ram.get_block(address)
 
-                # None position = capacity, still filling the set ---- Compulsary
+                # None position = capacity, still filling the set ---- Compulsory
                 if retrieved_set.capacity > 0:
 
                     retrieved_set.capacity -= 1
                     tag = address.get_tag()
-                    block_node = dllistnode([ram_block, tag])
-                    retrieved_set.data_blocks.appendright(block_node)
-                    # retrieved_set.tag_dictionary[tag] = block_node
+                    retrieved_set.data_blocks.appendright(dllistnode([ram_block, tag]))
 
                     location = len(retrieved_set.data_blocks) - 1  # new location of the node
                     retrieved_set.tag_dictionary[tag] = retrieved_set.data_blocks.nodeat(location)
-                    # Need to add key:tag, value: retrieved_set.getrightnode()
+
                 else:
                     self.set_block_with_replacement(address, ram_block)
-        else:
+        else: # Random and FIFO Policies
 
             # Search for None Blocks in the set :
             none_position = retrieved_set.search_for_none(address)
 
-            # Random and FIFO Policies
             for i in range(0, retrieved_set.n_way):
                 this_tag = address.get_tag()
                 if retrieved_set.tags[i] == this_tag:
@@ -147,14 +145,13 @@ class Cache:
             self.cache_sets[address.get_index()].tags[i] = address.get_tag()
             self.cache_sets[address.get_index()].data_blocks[i] = block
         elif self.policy == "LRU":
-            remove_node = current_set.data_blocks.pop()
+            remove_node = current_set.data_blocks.popleft()
             remove_tag = remove_node[1]
 
             del current_set.tag_dictionary[remove_tag]
 
             add_tag = address.get_tag()
-            add_node = dllistnode([block, add_tag])
-            current_set.data_blocks.appendright(add_node)
+            current_set.data_blocks.appendright(dllistnode([block, add_tag]))
             # current_set.tag_dictionary[add_tag] = add_node
             current_set.tag_dictionary[add_tag] = current_set.data_blocks.nodeat(len(current_set.data_blocks) - 1)
 

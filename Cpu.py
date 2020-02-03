@@ -87,8 +87,8 @@ class Cpu:
 
     def print_results(self):
         try:
-            read_miss_rate = (self.read_misses / (self.read_misses + self.read_hits)) * 100
-            write_miss_rate = (self.write_misses / (self.write_misses + self.write_hits)) * 100
+            read_miss_rate = (100.0 * self.read_misses / (self.read_misses + self.read_hits))
+            write_miss_rate = (100.0 * self.write_misses / (self.write_misses + self.write_hits))
 
             print("RESULTS===================================")
             print("Instruction Count = {:22d}".format(self.instruction_count))
