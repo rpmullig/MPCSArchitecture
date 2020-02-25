@@ -23,6 +23,3 @@ CPU emulator capable of modeling a simplified memory hierarchy in python program
 4. Write strategy: What happens on a write?
 
 
-## Breakdown
-
-## Project Shortcomings
